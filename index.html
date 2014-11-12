@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>MobileBlog</title>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4/jquery.mobile-1.0a4.min.css" />
+    <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0a4/jquery.mobile-1.0a4.min.js"></script>
+</head>
+ 
+<body>
+ 
+    <script type="text/javascript">
+        function resetTextFields()
+        {
+            $("#postTitle").val("");
+            $("#postContent").val("");
+        }
+ 
+        function onSuccess(data, status)
+        {
+            resetTextFields();
+            // Notify the user the new post was saved
+            $("#notification").fadeIn(2000);
+            data = $.trim(data);
+            if(data == "SUCCESS")
+            {
+                $("#notification").css("background-color", "#ffff00");
+                $("#notification").text("The post was saved");
+            }
+            else
+            {
+                $("#notification").css("background-color", "#ff0000");
+                $("#notification").text(data);
+            }
+            $("#notification").fadeOut(5000);
+        }
+ 
+        $(document).ready(function() {
+            $("#submit").click(function(){
+ 
+                var formData = $("#newPostForm").serialize();
+ 
+                $.ajax({
+                    type: "POST",
+                    url: "/mobile/newpost.php",
+                    cache: false,
+                    data: formData,
+                    success: onSuccess
+                });
+ 
+                return false;
+            });
+ 
+            $("#cancel").click(function(){
+                resetTextFields();
+            });
+ 
+            $("#refresh").click(function(){
+                location.reload();
+            });
+        });
+ 
+    </script>
+ 
+    <!-- indexPage -->
+    <div data-role="page" id="indexPage" data-add-back-btn="true">
+        <div data-role="header">
+            <h1>Welcome!</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview">
+                <li>
+            <a href="#createNewPostPage">Create New Post</a>
+                </li>
+                <li>
+            <a href="#readBlogPage">Read Blog</a>
+                </li>
+                <li>
+            <a href="#aboutMobileBlogPage">About MobileBlog</a>
+                </li>
+            </ul>
+        </div>
+ 
+        <div data-role="footer">
+            <h1>- MobileBlog -</h1>
+        </div>
+    </div>
+ 
+ 
+    <!-- createNewPostPage -->
+    <div data-role="page" id="createNewPostPage" data-add-back-btn="true">
+        <div data-role="header">
+            <h1>Create New Post</h1>
+        </div>
+ 
+        <div data-role="content">
+            <div data-role="content">
+                <form id="newPostForm">
+                    <div data-role="fieldcontain">
+                        <label for="postTitle"><strong>Post Title:</strong></label>
+                        <input type="text" name="postTitle" id="postTitle" value=""  />
+ 
+                        <label for="postContent"><strong>Post Content:</strong></label>
+                        <textarea name="postContent" id="postContent"></textarea>
+ 
+                        <fieldset class="ui-grid-a">
+                            <div class="ui-block-a"><a href="#indexPage" id="cancel" data-role="button">Cancel</a></div>
+                            <div class="ui-block-b"><button data-theme="b" id="submit" type="submit">Submit</button></div>
+                        </fieldset>
+                        <h3 id="notification"></h3>
+                    </div>
+                </form>
+            </div>
+        </div>
+ 
+        <div data-role="footer">
+            <h1>- MobileBlog -</h1>
+        </div>
+    </div>
+ 
+    <!-- readBlogPage -->
+    <div data-role="page" id="readBlogPage" data-add-back-btn="true">
+        <div data-role="header">
+            <h1>Read Blog</h1>
+        </div>
+        <div data-role="content">
+            <button data-theme="b" data-role="button" data-iconpos="left" id="refresh" type="button" data-icon="refresh">Refresh</button>
+            <ul data-role="listview" data-theme="d" data-inset="true">
+                <!-- Note: You should really display the blog post articles and then link to the full article, since this is a simple demo
+                    I'm just loading all the articles, obviously this is not a production quality blog since this could take a long
+                    time to load all the articles and on a mobile device speed counts.  Also, this data won't automatically refresh on a new post insert.
+                -->
+                <?php
+                    try
+                    {
+                        $connection = mysql_connect("mysql2.000webhost.com","a6422285_itbina","itbina123");
+                        mysql_select_db("a6422285_itbina", $connection);
+                        $result = mysql_query("SELECT * FROM posts");
+ 
+                        while($row = mysql_fetch_array($result))
+                        {
+                            echo "<li><h2>" . $row['post_title'] . "</h2>" . $row['post_content'] . "<p class='ui-li-aside'>" . $row['post_date'] . "<strong></p>";
+                        }
+ 
+                        mysql_close($connection);
+                    }
+                    catch(Exception $e)
+                    {
+                        echo $e->getMessage();
+                    }
+                ?>
+            </ul>
+        </div>
+ 
+        <div data-role="footer">
+            <h1>- MobileBlog -</h1>
+        </div>
+    </div>
+ 
+    <!-- aboutMobileBlogPage -->
+    <div data-role="page" id="aboutMobileBlogPage">
+        <div data-role="header">
+            <h1>About MobileBlog</h1>
+        </div>
+ 
+        <div data-role="content">
+            <div data-role="content">
+                <div data-role="fieldcontain">
+                    <p><a href="http://giantflyingsaucer.com/blog/?p=1856">MobileBlog</a></p>
+                    <p>Created by: <a href="http://twitter.com/chadlung">Chad Lung</a></p>
+                    <p>Powered by: <a href="http://jquerymobile.com">JQuery Mobile</a></p>
+                </div>
+            </div>
+        </div>
+ 
+        <div data-role="footer">
+            <h1>- MobileBlog -</h1>
+        </div>
+    </div>
+ 
+</body>
+</html>
